@@ -1,6 +1,8 @@
 # Jsonview
 
-TODO: Write a gem description
+Jsonview is a Rack middleware to help with inspecting JSON API responses in a browser. When the browser asks for HTML and *not* JSON and the server returns JSON anyway, this middleware will convert the response into a pretty-printed HTML representation. API calls made from Javascript or a server will not have Accept:text/html headers and should be unaffected.
+
+Inspired by http://jsonview.com/
 
 ## Installation
 
@@ -8,22 +10,6 @@ Add this line to your application's Gemfile:
 
     gem 'jsonview'
 
-And then execute:
+In Rails apps, it will add the middleware automatically. In other environments, you'll have to add it manually:
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install jsonview
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+    use Jsonview::Middleware
