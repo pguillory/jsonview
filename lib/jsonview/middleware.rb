@@ -31,7 +31,7 @@ module Jsonview
             <style>
               null { color: red }
               string { color: green }
-              number { color: blue }
+              number, boolean { color: blue }
               hash, array { display: block; margin-left: 20px }
               key { font-weight: bold }
             </style>
