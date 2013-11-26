@@ -26,18 +26,20 @@ module Jsonview
 
     def html_document(value)
       <<-HTML
+        <!DOCTYPE html>
         <html>
           <head>
             <style>
               null { color: red }
               string { color: green }
               number, boolean { color: blue }
-              hash, array { display: block; margin-left: 20px }
+              unknown { color: gray }
+              hash, array { display: block; margin-left: 2em }
               key { font-weight: bold }
             </style>
           </head>
           <body>
-            #{represent(value)}
+            #{represent(value).join}
           </body>
         </html>
       HTML
@@ -46,24 +48,61 @@ module Jsonview
     def represent(value)
       case value
       when nil
-        "<null>NULL</null>"
-      when String
-        "<string>\"#{encode(value)}\"</string>"
-      when Fixnum
-        "<number>#{value.to_s}</number>"
+        "<null>null</null>"
+      when Numeric
+        "<number>#{value}</number>"
       when TrueClass, FalseClass
-        "<boolean>#{value.to_s}</boolean>"
+        "<boolean>#{value}</boolean>"
       when Array
-        "[\n#{value.map{|v| "<array>#{represent(v)}</array>\n" }.join}]\n"
+        [
+          "[<array>\n",
+          value.each_with_index.map do |v, i|
+            [
+              (",<br/>\n" if i > 0),
+              represent(v),
+            ]
+          end,
+          "\n</array>]",
+        ]
       when Hash
-        "{\n#{value.to_a.map{|(k, v)| "<hash><key>#{encode(k.to_s)}</key>: #{represent(v)}</hash>\n" }.join}}\n"
+        [
+          "{<hash>\n",
+          value.each_with_index.map do |(k, v), i|
+            [
+              (",<br/>\n" if i > 0),
+              "<key>&quot;",
+              encode(k.to_s),
+              "&quot;</key>: ",
+              represent(v),
+            ]
+          end,
+          "\n</hash>}",
+        ]
+      when URI.regexp(%w[http https])
+        [
+          "&quot;<a href=\"",
+          encode(value),
+          "\">",
+          encode(value),
+          "</a>&quot;",
+        ]
+      when String
+        [
+          "<string>&quot;",
+          encode(value),
+          "&quot;</string>",
+        ]
       else
-        raise "Didn't expect a #{value.class}"
+        [
+          "<unknown>&quot;",
+          encode(value.inspect),
+          "&quot;</unknown>",
+        ]
       end
     end
 
     def encode(string)
-      string.gsub /[<>&"]/, '<' => '&lt;', '>' => '&gt;', '&' => '&amp;', '"' => '&quot;'
+      string.gsub /[<>&"]/, '<' => '&lt;', '>' => '&gt;', '&' => '&amp;', '"' => '\&quot;'
     end
   end
 end
